@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Travelgram — Vídeo promocional 15s</title>
+<!--
+  Vídeo promocional de 15s (1080x1920, 9:16).
+  A animação é 100% determinística: window.render(t) desenha o quadro do segundo t.
+  Abra no navegador para pré-visualizar (toca em loop) ou rode `node render.mjs` para gerar o MP4.
+-->
+<style>
+    @font-face { font-family: "Poppins"; font-weight: 400; src: url(fonts/poppins-400.woff2) format("woff2"); }
+    @font-face { font-family: "Poppins"; font-weight: 600; src: url(fonts/poppins-600.woff2) format("woff2"); }
+    @font-face { font-family: "Poppins"; font-weight: 700; src: url(fonts/poppins-700.woff2) format("woff2"); }
+    @font-face { font-family: "Poppins"; font-weight: 800; src: url(fonts/poppins-800.woff2) format("woff2"); }
+
+    :root {
+        --brand-color: #EF5F4C;
+        --background-color: #FFFFFF;
+        --surface-color: #F5F5F5;
+        --text-color-primary: #313131;
+        --text-color-secondary: #6C6C6C;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { background: #111; }
+
+    #stage {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        font-family: "Poppins", sans-serif;
+        color: var(--text-color-primary);
+        background: var(--background-color);
+        transform-origin: 0 0;
+    }
+
+    .layer { position: absolute; inset: 0; }
+    .abs { position: absolute; }
+    .white { filter: brightness(0) invert(1); }
+
+    /* Cena 1: intro */
+    #s1 { background: var(--background-color); }
+    #s1-route { position: absolute; left: 0; top: 0; }
+    #s1-plane { width: 120px; height: 120px; left: 0; top: 0; }
+    #s1-logo { width: 820px; left: 130px; top: 840px; }
+    #s1-tag {
+        width: 100%; top: 1060px; text-align: center;
+        font-size: 52px; font-weight: 600; color: var(--text-color-secondary);
+    }
+    #wipe1 { border-radius: 50%; background: var(--brand-color); width: 10px; height: 10px; }
+
+    /* Cena 2: montagem de fotos */
+    #s2 { background: var(--brand-color); }
+    .s2-photo { opacity: 0; }
+    .s2-bg {
+        position: absolute; inset: -80px;
+        background-size: cover; background-position: center;
+        filter: blur(48px) saturate(1.2) brightness(.75);
+    }
+    .s2-card {
+        position: absolute; left: 90px; top: 470px; width: 900px; height: 900px;
+        border-radius: 56px; overflow: hidden;
+        box-shadow: 0 40px 100px rgba(0,0,0,.45);
+    }
+    .s2-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .s2-pill {
+        position: absolute; left: 130px; top: 1290px;
+        display: flex; align-items: center; gap: 16px;
+        padding: 18px 36px 18px 26px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.94);
+        font-size: 40px; font-weight: 600; color: var(--text-color-primary);
+        box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    }
+    .s2-pill img { width: 52px; height: 52px; }
+    #s2-head, #s2-sub, #s2-bars { z-index: 10; }
+    #s2-head {
+        width: 100%; top: 200px; text-align: center; color: #fff;
+        font-size: 84px; line-height: 1.1; font-weight: 800; letter-spacing: -1px;
+        text-shadow: 0 6px 30px rgba(0,0,0,.35);
+    }
+    #s2-sub {
+        width: 100%; top: 1500px; text-align: center; color: #fff;
+        font-size: 44px; font-weight: 600;
+        text-shadow: 0 4px 20px rgba(0,0,0,.35);
+    }
+    #s2-bars { left: 90px; top: 140px; width: 900px; display: flex; gap: 12px; }
+    #s2-bars div { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,.4); overflow: hidden; }
+    #s2-bars div span { display: block; height: 100%; width: 0; background: #fff; }
+
+    /* Cena 3: perfil */
+    #s3 { background: var(--surface-color); }
+    #s3-head {
+        width: 100%; top: 150px; text-align: center;
+        font-size: 80px; line-height: 1.1; font-weight: 800; letter-spacing: -1px;
+    }
+    #s3-head em { font-style: normal; color: var(--brand-color); }
+    #s3-pic {
+        width: 260px; height: 260px; left: 90px; top: 430px;
+        border-radius: 50%; border: 8px solid #fff;
+        box-shadow: 0 16px 40px rgba(0,0,0,.15);
+    }
+    #s3-name { left: 390px; top: 470px; font-size: 64px; font-weight: 700; }
+    #s3-bio { left: 392px; top: 560px; font-size: 34px; color: var(--text-color-secondary); line-height: 1.4; }
+    #s3-stats { left: 90px; top: 740px; width: 900px; display: flex; gap: 24px; }
+    .stat {
+        flex: 1; background: #fff; border-radius: 32px; padding: 26px 24px;
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.06);
+    }
+    .stat img { width: 60px; height: 60px; }
+    .stat b { font-size: 56px; font-weight: 700; line-height: 1.2; color: var(--text-color-primary); }
+    .stat span { font-size: 28px; color: var(--text-color-secondary); }
+    #s3-grid {
+        left: 120px; top: 1010px; width: 840px;
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    }
+    #s3-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 24px; display: block; }
+
+    /* Cena 4: CTA */
+    #s4 { background: var(--brand-color); color: #fff; }
+    #s4-logo { width: 760px; left: 160px; top: 560px; }
+    #s4-line1, #s4-line2 {
+        width: 100%; text-align: center; font-weight: 800; letter-spacing: -1px;
+        font-size: 92px; line-height: 1.1;
+    }
+    #s4-line1 { top: 820px; }
+    #s4-line2 { top: 925px; }
+    #s4-cta {
+        left: 190px; top: 1180px; width: 700px; height: 140px;
+        border-radius: 999px; background: #fff; color: var(--brand-color);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 50px; font-weight: 700;
+        box-shadow: 0 20px 50px rgba(0,0,0,.18);
+    }
+    #s4-url { width: 100%; top: 1380px; text-align: center; font-size: 38px; font-weight: 400; opacity: .9; }
+    .bubble { border-radius: 50%; background: rgba(255,255,255,.12); }
+</style>
+</head>
+<body>
+<div id="stage">
+
+    <!-- Cena 1 -->
+    <div id="s1" class="layer">
+        <svg id="s1-route" width="1080" height="1920" viewBox="0 0 1080 1920">
+            <path id="route" d="M -60 1460 C 260 1700, 520 1380, 560 1180 S 840 560, 1160 420"
+                  fill="none" stroke="#EF5F4C" stroke-width="8" stroke-linecap="round" stroke-dasharray="4 26" opacity=".55"/>
+        </svg>
+        <img id="s1-plane" class="abs" src="../assets/Icons/AirplaneTilt.svg" alt="">
+        <img id="s1-logo" class="abs" src="../assets/Icons/Logo.svg" alt="Travelgram">
+        <div id="s1-tag" class="abs">Cada clique, uma história.</div>
+        <div id="wipe1" class="abs"></div>
+    </div>
+
+    <!-- Cena 2 -->
+    <div id="s2" class="layer">
+        <div class="s2-photo layer" data-src="../assets/imagess/Image 02.png" data-label="Veneza, Itália"></div>
+        <div class="s2-photo layer" data-src="../assets/imagess/Image 05.png" data-label="Cinque Terre, Itália"></div>
+        <div class="s2-photo layer" data-src="../assets/imagess/Image 07.png" data-label="Florença, Itália"></div>
+        <div class="s2-photo layer" data-src="../assets/imagess/Image 12.png" data-label="Roma, Itália"></div>
+        <div id="s2-bars" class="abs"><div><span></span></div><div><span></span></div><div><span></span></div><div><span></span></div></div>
+        <div id="s2-head" class="abs">Registre cada<br>destino</div>
+        <div id="s2-sub" class="abs">Fotos, lugares e memórias num só lugar</div>
+    </div>
+
+    <!-- Cena 3 -->
+    <div id="s3" class="layer">
+        <div id="s3-head" class="abs">Seu <em>perfil</em><br>de viagens</div>
+        <img id="s3-pic" class="abs" src="../assets/Profile pic.png" alt="">
+        <div id="s3-name" class="abs">Isabela Torres</div>
+        <div id="s3-bio" class="abs">Viagens, cultura e gastronomia<br>São Paulo, Brasil</div>
+        <div id="s3-stats" class="abs">
+            <div class="stat"><img src="../assets/Icons/AirplaneTilt.svg" alt=""><b id="c-paises">0</b><span>países</span></div>
+            <div class="stat"><img src="../assets/Icons/Image.svg" alt=""><b id="c-fotos">0</b><span>fotos</span></div>
+            <div class="stat"><img src="../assets/Icons/MapPin.svg" alt=""><b id="c-cidades">0</b><span>cidades</span></div>
+        </div>
+        <div id="s3-grid" class="abs"></div>
+    </div>
+
+    <!-- Cena 4 -->
+    <div id="s4" class="layer">
+        <div class="bubble abs" id="b1" style="width:620px;height:620px;left:-220px;top:-160px"></div>
+        <div class="bubble abs" id="b2" style="width:520px;height:520px;left:700px;top:1500px"></div>
+        <img id="s4-logo" class="abs white" src="../assets/Icons/Logo.svg" alt="Travelgram">
+        <div id="s4-line1" class="abs">Viaje. Clique.</div>
+        <div id="s4-line2" class="abs">Compartilhe.</div>
+        <div id="s4-cta" class="abs">Crie seu perfil grátis</div>
+        <div id="s4-url" class="abs">Disponível agora no Travelgram</div>
+    </div>
+</div>
+
+<script>
+    const DURATION = 15;
+    const $ = (s) => document.querySelector(s);
+
+    // Utilidades de animação
+    const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+    const prog = (t, a, b) => clamp((t - a) / (b - a));
+    const lerp = (a, b, p) => a + (b - a) * p;
+    const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+    const easeInOut = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+    const easeOutBack = (p) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+    const show = (el, on) => { el.style.display = on ? "" : "none"; };
+    const fadeUp = (el, t, a, d = .5, dist = 40) => {
+        const p = easeOut(prog(t, a, a + d));
+        el.style.opacity = p;
+        el.style.transform = `translateY(${(1 - p) * dist}px)`;
+    };
+
+    // Monta as fotos da cena 2
+    const s2Photos = [...document.querySelectorAll(".s2-photo")];
+    for (const ph of s2Photos) {
+        const src = encodeURI(ph.dataset.src);
+        ph.innerHTML = `
+            <div class="s2-bg" style="background-image:url('${src}')"></div>
+            <div class="s2-card"><img src="${src}" alt=""></div>
+            <div class="s2-pill"><img src="../assets/Icons/MapPin.svg" alt="">${ph.dataset.label}</div>`;
+    }
+
+    // Monta a grade da cena 3
+    const gridIds = ["01", "03", "04", "06", "08", "09", "10", "11", "12"];
+    $("#s3-grid").innerHTML = gridIds.map((n) => `<img src="../assets/imagess/Image ${n}.png" alt="">`).join("");
+    const gridImgs = [...document.querySelectorAll("#s3-grid img")];
+
+    const route = $("#route");
+    const routeLen = route.getTotalLength();
+    route.style.strokeDasharray = "";
+
+    // Linha do tempo (segundos)
+    const S1 = [0, 2.6], S2 = [2.6, 7.6], S3 = [7.6, 11.4], S4 = [11.4, 15];
+
+    function render(t) {
+        // ---------- Cena 1: avião desenha a rota e revela o logo ----------
+        show($("#s1"), t < S2[0]);
+        if (t < S2[0]) {
+            const pr = easeInOut(prog(t, 0, 1.3));
+            const len = routeLen * pr;
+            route.setAttribute("stroke-dasharray", `${len} ${routeLen}`);
+            route.setAttribute("stroke-dashoffset", 0);
+            const pt = route.getPointAtLength(len);
+            const ahead = route.getPointAtLength(Math.min(routeLen, len + 4));
+            const ang = Math.atan2(ahead.y - pt.y, ahead.x - pt.x) * 180 / Math.PI;
+            const plane = $("#s1-plane");
+            // O ícone aponta para cima-direita (45°)
+            plane.style.transform = `translate(${pt.x - 60}px, ${pt.y - 60}px) rotate(${ang + 45}deg)`;
+            plane.style.opacity = 1 - prog(t, 1.2, 1.4);
+            route.style.opacity = 1 - prog(t, 1.3, 1.7);
+
+            const lp = prog(t, 0.9, 1.6);
+            $("#s1-logo").style.opacity = lp;
+            $("#s1-logo").style.transform = `scale(${lerp(.6, 1, easeOutBack(lp))})`;
+            fadeUp($("#s1-tag"), t, 1.35, .5);
+
+            // círculo coral expande e cobre a tela
+            const wp = easeInOut(prog(t, 2.05, 2.6));
+            const d = wp * 4600;
+            const wipe = $("#wipe1");
+            wipe.style.width = wipe.style.height = d + "px";
+            wipe.style.left = (540 - d / 2) + "px";
+            wipe.style.top = (960 - d / 2) + "px";
+        }
+
+        // ---------- Cena 2: montagem de destinos ----------
+        show($("#s2"), t >= S2[0] && t < S3[0] + .5);
+        if (t >= S2[0] && t < S3[0] + .5) {
+            const local = t - S2[0];
+            const per = (S2[1] - S2[0]) / s2Photos.length;
+            s2Photos.forEach((ph, i) => {
+                const a = i * per;
+                const inP = easeOut(prog(local, a, a + .35));
+                const vis = local >= a - .01 && local < a + per + .4;
+                ph.style.opacity = i === 0 ? prog(local, 0, .25) : inP;
+                ph.style.zIndex = i;
+                ph.style.display = vis ? "" : "none";
+                // Ken Burns dentro do cartão
+                const kb = prog(local, a, a + per + .4);
+                ph.querySelector(".s2-card img").style.transform =
+                    `scale(${lerp(1.18, 1.0, kb)}) translateX(${(i % 2 ? -1 : 1) * lerp(14, -14, kb)}px)`;
+                ph.querySelector(".s2-card").style.transform =
+                    `translateY(${(1 - inP) * 120}px) scale(${lerp(.9, 1, inP)}) rotate(${(1 - inP) * (i % 2 ? 3 : -3)}deg)`;
+                const pill = ph.querySelector(".s2-pill");
+                const pp = easeOutBack(prog(local, a + .2, a + .6));
+                pill.style.opacity = prog(local, a + .2, a + .4);
+                pill.style.transform = `translateX(${(1 - pp) * -60}px)`;
+            });
+            document.querySelectorAll("#s2-bars span").forEach((bar, i) => {
+                bar.style.width = prog(local, i * per, (i + 1) * per) * 100 + "%";
+            });
+            fadeUp($("#s2-head"), local, .15, .5);
+            fadeUp($("#s2-sub"), local, .5, .5);
+            $("#s2-bars").style.opacity = prog(local, 0, .3);
+        }
+
+        // ---------- Cena 3: perfil (entra deslizando de baixo) ----------
+        show($("#s3"), t >= S3[0] && t < S4[0] + .6);
+        if (t >= S3[0] && t < S4[0] + .6) {
+            const local = t - S3[0];
+            const sp = easeInOut(prog(local, 0, .5));
+            $("#s3").style.transform = `translateY(${(1 - sp) * 1920}px)`;
+            $("#s3").style.borderRadius = `${(1 - sp) * 80}px ${(1 - sp) * 80}px 0 0`;
+            fadeUp($("#s3-head"), local, .35, .5);
+            const pp = prog(local, .5, 1.0);
+            $("#s3-pic").style.opacity = pp;
+            $("#s3-pic").style.transform = `scale(${lerp(.3, 1, easeOutBack(pp))})`;
+            fadeUp($("#s3-name"), local, .65, .45, 30);
+            fadeUp($("#s3-bio"), local, .8, .45, 30);
+            fadeUp($("#s3-stats"), local, .9, .5, 50);
+            const cp = easeOut(prog(local, 1.0, 2.2));
+            $("#c-paises").textContent = Math.round(37 * cp);
+            $("#c-fotos").textContent = Math.round(240 * cp);
+            $("#c-cidades").textContent = Math.round(85 * cp);
+            gridImgs.forEach((img, i) => {
+                const a = 1.3 + i * .09;
+                const gp = prog(local, a, a + .45);
+                img.style.opacity = gp;
+                img.style.transform = `scale(${lerp(.5, 1, easeOutBack(gp))})`;
+            });
+        }
+
+        // ---------- Cena 4: chamada final ----------
+        show($("#s4"), t >= S4[0]);
+        if (t >= S4[0]) {
+            const local = t - S4[0];
+            const wp = easeInOut(prog(local, 0, .6));
+            $("#s4").style.clipPath = `circle(${wp * 120}% at 50% 100%)`;
+            $("#b1").style.transform = `scale(${lerp(.6, 1.1, easeOut(prog(local, 0, 3.6)))})`;
+            $("#b2").style.transform = `scale(${lerp(.6, 1.15, easeOut(prog(local, .2, 3.6)))})`;
+            const lp = prog(local, .45, 1.0);
+            $("#s4-logo").style.opacity = lp;
+            $("#s4-logo").style.transform = `scale(${lerp(.7, 1, easeOutBack(lp))})`;
+            fadeUp($("#s4-line1"), local, .8, .5, 50);
+            fadeUp($("#s4-line2"), local, 1.05, .5, 50);
+            const cp = prog(local, 1.5, 2.0);
+            const pulse = 1 + Math.sin(Math.max(0, local - 2.1) * 6) * .025 * prog(local, 2.1, 2.4);
+            $("#s4-cta").style.opacity = cp;
+            $("#s4-cta").style.transform = `scale(${lerp(.6, 1, easeOutBack(cp)) * pulse})`;
+            fadeUp($("#s4-url"), local, 1.9, .5, 20);
+        }
+    }
+
+    window.render = render;
+    window.DURATION = DURATION;
+    window.ready = Promise.all([
+        document.fonts.ready,
+        ...[...document.images].map((im) => im.decode().catch(() => {})),
+    ]);
+
+    // Pré-visualização no navegador: escala para caber na janela e toca em loop
+    if (!new URLSearchParams(location.search).has("capture")) {
+        const fit = () => {
+            const s = Math.min(innerWidth / 1080, innerHeight / 1920);
+            $("#stage").style.transform = `scale(${s})`;
+        };
+        addEventListener("resize", fit); fit();
+        let t0 = null;
+        const loop = (now) => {
+            if (t0 === null) t0 = now;
+            render(((now - t0) / 1000) % DURATION);
+            requestAnimationFrame(loop);
+        };
+        window.ready.then(() => requestAnimationFrame(loop));
+    }
+</script>
+</body>
+</html>
